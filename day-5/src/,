@@ -1,0 +1,51 @@
+use std::{collections::HashMap, fs::read_to_string};
+
+fn get_crate_vectors(crates: &str) -> HashMap<usize, Vec<&str>> {
+    let mut vectors: HashMap<usize, Vec<&str>> = HashMap::new();
+    let crate_numbers: Vec<usize> = crates
+        .lines()
+        .last()
+        .unwrap()
+        .trim()
+        .split("   ")
+        .map(|x| x.parse::<usize>().unwrap())
+        .collect();
+
+    let crate_content: &str = crates.split_once("\n ").unwrap().0;
+    for i in crate_numbers.iter() {
+        for j in crate_content.lines() {
+            let k = j.get((i * 4 - 3)..(i * 4 - 2)).unwrap();
+            if k != " " {
+                vectors.entry(*i).or_insert_with(Vec::new).push(k);
+            }
+        }
+    }
+
+    vectors
+}
+
+fn main() {
+    let contents = read_to_string("test.txt").unwrap();
+    let (crates, moves) = contents.split_once("\nmove").unwrap();
+    let moves = "move ".to_owned() + moves.trim();
+    println!("{}", moves);
+    
+    let mut crates = get_crate_vectors(crates);
+    println!("{:?}", crates);
+
+    let moves: Vec<Vec<i32>> = moves.lines().map(|x| {
+        x.split(" ")
+            .map(|x| x.parse::<i32>())
+            .filter(|x| x.is_ok())
+            .map(|x| x.unwrap())
+            .collect()
+    }).collect();
+
+    println!("{:?}", moves);
+
+    let mut a = *crates.get(&2).unwrap();
+    println!("{:?}", a.pop());
+
+
+
+}
